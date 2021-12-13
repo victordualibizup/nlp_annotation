@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import json
+import os
+import pickle
+import sys
+import traceback
+
+import pandas as pd
+from nlp_annotation import data_manager, modelling, pipeline
+from nlp_annotation.config.core import config
+
+prefix = '/opt/ml/'
+
+input_path = prefix + 'input/data'
+output_path = os.path.join(prefix, 'output')
+model_path = os.path.join(prefix, 'model')
+channel_name = 'training'
+training_path = os.path.join(input_path, channel_name)
+
+
+def train():
+    print('Starting the training.')
+    # Take the set of files and read them all into a single pandas dataframe
+    input_files = [os.path.join(training_path, file) for file in os.listdir(training_path)]
+    if len(input_files) == 0:
+        raise ValueError(('There are no files in {}.\n' +
+                          'This usually indicates that the channel ({}) was incorrectly specified,\n' +
+                          'the data specification in S3 was incorrectly specified or the role specified\n' +
+                          'does not have permission to access the data.').format(training_path, channel_name))
+    raw_data = [pd.read_csv(file) for file in input_files]
+    train_features = pd.concat(raw_data)
+
+    data_dict = modelling.train_model(
+        train_features=train_features,
+        bucket=config.app_config.bucket_name, key=config.app_config.data_key
+    )
+
+    model = data_dict[config.app_config.model_key]
+
+    with open(os.path.join(model_path, config.app_config.model_name), 'wb') as out:
+        pickle.dump(model, out)
+    print('Training complete.')
+
+
+if __name__ == '__main__':
+    train()
+
+    # A zero exit code causes the job to be marked a Succeeded.
+    sys.exit(0)

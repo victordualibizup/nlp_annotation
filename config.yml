@@ -1,0 +1,44 @@
+# Project Overview
+author: Victor Rabêllo
+squad: Bella-Insights
+
+# Variables
+target: label
+train_features_column: data
+
+# Model Name
+model_name: nlp_model.pkl
+
+# AWS Resources
+bucket_name: bella-insights-annotation
+data_key: bella-dataset-mutant
+file_names_list:
+  - caio.pereira.mutant.csv
+  - kelly.silva.mutant.csv
+  - valdete.machado.mutant.csv
+
+# Drop Duplicates Method Subset
+dropping_subset: data
+
+# Features Dict
+model_key: model
+
+# Features Dict Split
+x_train: X_train
+x_test: X_test
+y_train: y_train
+y_test: y_test
+
+# Count Vectorize
+token_pattern: None
+ngram_range_min: 1
+ngram_range_max: 4
+
+# Logistic Regression
+logistic_regression_solver: liblinear
+
+# Split Configuration
+random_state: 42
+split_test_size: 0.2
+split_shuffle: True
+split_stratify: None
